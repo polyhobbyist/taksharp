@@ -65,6 +65,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CoT.cs" />
     <Compile Include="TakSharp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -16,6 +16,11 @@ namespace TakSharp.tests
 
         }
 
+        public bool isConnected()
+        {
+            return true;
+        }
+
         internal void set(string s)
         {
             stream.Position = 0;
@@ -151,7 +156,7 @@ namespace TakSharp.tests
                 t.stopListening();
             };
 
-            await t.startListening();
+            await t.listen();
         }
     }
 }
