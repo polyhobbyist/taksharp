@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
@@ -137,6 +138,9 @@ namespace TakSharp
             public string start;
             [XmlAttributeAttribute()]
             public string stale;
+
+            public EventDetail detail;
+
         }
 
         public static string FormatTime(DateTime dt)
@@ -145,4 +149,72 @@ namespace TakSharp
         }
     }
 
+    [XmlInclude(typeof(LoginDetail))]
+    public class EventDetail
+    {
+        public Remarks remarks;
+
+        [XmlElement(ElementName = "__chat")]
+        public Chat chat;
+
+
+        [XmlElement(ElementName = "link")]
+        public Link link;
+    }
+
+    public class Link
+    {
+        [XmlAttributeAttribute()] public string uid;
+        [XmlAttributeAttribute()] public string parent_callsign;
+        [XmlAttributeAttribute()] public string type;
+        [XmlAttributeAttribute()] public string relation;
+    }
+
+    public class Chat
+    {
+        [XmlAttributeAttribute()] public string id;
+        [XmlAttributeAttribute()] public string chatroom;
+        [XmlAttributeAttribute()] public string senderCallsign;
+        [XmlAttributeAttribute()] public string groupOwner;
+        [XmlAttributeAttribute()] public string messageId;
+
+
+
+
+    }
+
+    public class Remarks
+    {
+        [XmlAttributeAttribute()] public string source;
+        [XmlAttributeAttribute()] public string sourceId;
+        [XmlAttributeAttribute()] public string to;
+        [XmlAttributeAttribute()] public string time;
+        [XmlText()]
+        public string content;
+    }
+
+    // CoT Event for Login. Xml node should be Login
+
+    [XmlRoot("login")]
+    public class LoginDetail : EventDetail
+    {
+        [XmlAttributeAttribute()]
+        public string contact;
+        [XmlAttributeAttribute()]
+        public string endpoint;
+        [XmlAttributeAttribute()]
+        public string group;
+        [XmlAttributeAttribute()]
+        public string password;
+        [XmlAttributeAttribute()]
+        public string status;
+        [XmlAttributeAttribute()]
+        public string uid;
+        [XmlAttributeAttribute()]
+        public string user;
+        [XmlAttributeAttribute()]
+        public string nonce;
+        [XmlAttributeAttribute()]
+        public string deviceId;
+    }
 }

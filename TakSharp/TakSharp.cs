@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Xml.Serialization;
 using System.Collections.Specialized;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using Microsoft.VisualBasic;
@@ -92,6 +93,20 @@ namespace TakSharp
             listening = false;
         }
 
+        public bool isListening()
+        {
+            return listening;
+        }
+
+        static public string nonce()
+        {
+            Random random = new Random();
+
+            // Utility to generate nonce string
+            DateTime created = DateTime.Now;
+
+            return Convert.ToBase64String(new SHA512Managed().ComputeHash(Encoding.ASCII.GetBytes(created + random.Next().ToString())));
+        }
 
         private void  ReadClientAsync()
         {

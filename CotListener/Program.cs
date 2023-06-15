@@ -21,18 +21,12 @@ namespace CotListener
                 x.Serialize(Console.Out, e);
             };
 
-            var g = new CoT.Event();
-            g.version = "2.0";
-            g.uid = "takSharp";
-            g.type = "t-x-d-d";
-            g.uid = "takPong";
-            g.how = "m-g";
-            g.time = CoT.FormatTime(DateTime.UtcNow);
-            g.start = CoT.FormatTime(DateTime.UtcNow);
-            g.stale = CoT.FormatTime(DateTime.UtcNow + TimeSpan.FromHours(1));
-
-
-            await tak.putObject(g);
+            // Login to Tak
+            var l = new CoT.Event();
+            l.version = "2.0";
+            l.uid = "testing";
+            l.detail = new LoginDetail() { uid= l.uid, deviceId="testing", password="", nonce=Tak.nonce() };
+            await tak.putObject(l);
 
             await tak.listen();
 
