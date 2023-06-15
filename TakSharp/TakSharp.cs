@@ -27,7 +27,7 @@ namespace TakSharp
 
         bool isConnected();
 
-        Stream GetStream();
+        NetworkStream GetStream();
     };
 
     public class TakTcpNetwork : ITakNetwork
@@ -46,15 +46,16 @@ namespace TakSharp
             return client.Connected;
         }
 
-        public Stream GetStream()
+        public NetworkStream GetStream()
         {
             return client.GetStream();
         }
     }
     public class Tak
     {
-        Stream stream;
+        NetworkStream stream;
         ITakNetwork network;
+        Thread pingThread;
 
         public delegate void cotHandler(CoT.Event e);
 
@@ -67,10 +68,33 @@ namespace TakSharp
             this.network = net;
         }
 
+        private async void sendPingAsync()
+        {
+            while (network.isConnected())
+            {
+                var g = new CoT.Event();
+                g.version = "2.0";
+                g.uid = "takSharp";
+                g.type = "t-x-d-d";
+                g.uid = "takPing";
+                g.how = "m-g";
+                g.time = CoT.FormatTime(DateTime.UtcNow);
+                g.start = CoT.FormatTime(DateTime.UtcNow);
+                g.stale = CoT.FormatTime(DateTime.UtcNow + TimeSpan.FromSeconds(60));
+
+                await putObject(g);
+
+                await Task.Delay(60000);
+            }   
+        }
+
         public async Task connect(string ip, int port)
         {
             await network.Connect(ip, port);
             stream = network.GetStream();
+
+            pingThread = new Thread(sendPingAsync);
+            pingThread.Start();
         }
 
 
@@ -80,14 +104,9 @@ namespace TakSharp
 
             x.Serialize(stream, o);
 
-            await Task.Delay(0);
+            await Task.Delay(1);
         }
 
-        public Task listen()
-        {
-            listening = true;
-            return Task.Run(() => ReadClientAsync());
-        }
         public void stopListening()
         {
             listening = false;
@@ -108,33 +127,30 @@ namespace TakSharp
             return Convert.ToBase64String(new SHA512Managed().ComputeHash(Encoding.ASCII.GetBytes(created + random.Next().ToString())));
         }
 
-        private void  ReadClientAsync()
+        public void listen()
         {
+            listening = true;
             byte[] buffer = new byte[2048];
-            var xmlReader = XmlReader.Create(stream); 
             while (listening && network.isConnected())
             {
                 try
                 {
-                    // This stream object contains a stream of XML blocks,
-                    // which may not be complete on read.
-                    // Read the stream until we have a complete XML block.
-
-                    int bytesRead = 0;
-                    while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) != 0)
+                    var messageBuilder = new StringBuilder();
+                    do
                     {
-                        string data = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                        Console.WriteLine(data);
+                        stream.Read(buffer, 0, buffer.Length);
+                        var s = Encoding.UTF8.GetString(buffer);
+                        messageBuilder.Append(s);
+                    } while (stream.DataAvailable);
 
+                    if (messageBuilder.Length > 0)
+                    {
+                        var message = messageBuilder.ToString();
                         var x = new XmlSerializer(typeof(CoT.Event));
-                        if (x.CanDeserialize(xmlReader))
+                        var e = (CoT.Event)x.Deserialize(new StringReader(message));
+                        if (OnCot != null)
                         {
-                            var e = x.Deserialize(xmlReader) as CoT.Event;
-
-                            if (OnCot != null)
-                            {
-                                OnCot(e);
-                            }
+                            OnCot(e);
                         }
                     }
                 }

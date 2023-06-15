@@ -2,6 +2,7 @@ using System.Net;
 using TakSharp;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Net.Sockets;
 
 namespace TakSharp.tests
 {
@@ -48,9 +49,9 @@ namespace TakSharp.tests
             await Task.Delay(0);
         }
 
-        public Stream GetStream()
+        public NetworkStream GetStream()
         {
-            return stream;
+            return null;    // todo fix
         }
 
     };

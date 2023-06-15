@@ -28,7 +28,7 @@ namespace CotListener
             l.detail = new LoginDetail() { uid= l.uid, deviceId="testing", password="", nonce=Tak.nonce() };
             await tak.putObject(l);
 
-            await tak.listen();
+            tak.listen();
 
             Console.WriteLine("And there you have it");
         }
