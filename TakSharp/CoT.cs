@@ -12,113 +12,52 @@ namespace TakSharp
 
     public class CoT
     {
-        public enum Attitude
-        {
-            [Description("friend")]
-            Friend,
-            [Description("friendly")]
-            Friendly,
-            [Description("hostile")]
-            Hostle,
-            [Description("unknown")]
-            Unknown,
-            [Description("pending")]
-            Pending,
-            [Description("assumed")]
-            Assumed,
-            [Description("neutral")]
-            Neutral,
-            [Description("suspect")]
-            Suspect
-        };
+        public const string typeAll = "a-f-G-U-C-I";
+        public const string typeAirAsset = "a";
+        public const string typeFrendlyForceLocation = "f";
+        public const string typeGroundAsset = "G";
+        public const string typeUnknownType = "U";
+        public const string typeControlStation = "C";
+        public const string typeImagry = "I";
 
-        public enum CoTHow
-        {
-            mensurated,
-            [Description("h-t")]
-            human,
-            [Description("h-t")]
-            retyped,
-            [Description("m-")]
-            machine,
-            [Description("m-g")]
-            gps,
-            [Description("h-g-i-g-o")]
-            gigo,
-            [Description("a-f-G-E-V-9-1-1")]
-            mayday,
-            [Description("h-e")]
-            estimated,
-            [Description("h-c")]
-            calculated,
-            [Description("h-t")]
-            transcribed,
-            [Description("h-p")]
-            pasted,
-            [Description("m-m")]
-            magnetic,
-            [Description("m-n")]
-            ins,
-            [Description("m-s")]
-            simulated,
-            [Description("m-c")]
-            configured,
-            [Description("m-r")]
-            radio,
-            [Description("m-p")]
-            passed,
-            [Description("m-p")]
-            propagated,
-            [Description("m-f")]
-            fused,
-            [Description("m-a")]
-            tracker,
-            [Description("m-g-n")]
-            ins_gps,
-            [Description("m-g-d")]
-            dgps,
-            [Description("m-r-e")]
-            eplrs,
-            [Description("m-r-p")]
-            plrs,
-            [Description("m-r-d")]
-            doppler,
-            [Description("m-r-v")]
-            vhf,
-            [Description("m-r-t")]
-            tadil,
-            [Description("m-r-t-a")]
-            tadila,
-            [Description("m-r-t-b")]
-            tadilb,
-            [Description("m-r-t-j")]
-            tadilj
-        }
-        //{
-        //  "longitude = -77.0104,
-        //  "latitude = 38.889,
-        //  "attitude = "hostile",
-        //  "bearing = 132, 
-        //  "distance = 1,
-        //  "geoObject = "Gnd Combat Infantry Sniper",
-        //  "how = "nonCoT",
-        //  "name = "Putin",
-        //  "timeout = 600  
-        //}
+        public const string attitudeFriend = "friend";
+        public const string attitudeFriendly = "friendly";
+        public const string attitudeHostile = "hostile";
+        public const string attitudeUnknown = "unknown";
+        public const string attitudePending = "pending";
+        public const string attitudeAssumed = "assumed";
+        public const string attitudeNeutral = "neutral";
+        public const string attitudeSuspect = "suspect";
 
-
-
-        public string uid;
-        public double longitude;
-        public double latitude;
-        public string attitude;
-        public string how;
-        public string name;
-        public double bearing;
-        public double distance;
-        public string role;
-        public string team;
-        public uint timeout;
+        public const string howHuman = "h-t";
+        public const string howRetyped = "h-t";
+        public const string howMachine = "m-";
+        public const string howGps = "m-g";
+        public const string howGigo = "h-g-i-g-o";
+        public const string howMayday = "a-f-G-E-V-9-1-1";
+        public const string howEstimated = "h-e";
+        public const string howCalculated = "h-c";
+        public const string howTranscribed = "h-t";
+        public const string howPasted = "h-p";
+        public const string howMagnetic = "m-m";
+        public const string howIns = "m-n";
+        public const string howSimulated = "m-s";
+        public const string howConfigured = "m-c";
+        public const string howRadio = "m-r";
+        public const string howPassed = "m-p";
+        public const string howPropagated = "m-p";
+        public const string howFused = "m-f";
+        public const string howTracker = "m-a";
+        public const string howIns_gps = "m-g-n";
+        public const string howDgps = "m-g-d";
+        public const string howEplrs = "m-r-e";
+        public const string howPlrs = "m-r-p";
+        public const string howDoppler = "m-r-d";
+        public const string howVhf = "m-r-v";
+        public const string howTadil = "m-r-t";
+        public const string howTadila = "m-r-t-a";
+        public const string howTadilb = "m-r-t-b";
+        public const string howTadilj = "m-r-t-j";
 
 
         [XmlRoot("event")]
@@ -133,11 +72,13 @@ namespace TakSharp
             [XmlAttributeAttribute()]
             public string how;
             [XmlAttributeAttribute()]
-            public string time;
+            public string time = DateTime.UtcNow.ToString("O");
             [XmlAttributeAttribute()]
-            public string start;
+            public string start = DateTime.UtcNow.ToString("O");
             [XmlAttributeAttribute()]
-            public string stale;
+            public string stale = DateTime.UtcNow.AddSeconds(60).ToString("O");
+
+            public Point point;
 
             public EventDetail detail;
 
@@ -149,6 +90,25 @@ namespace TakSharp
         }
     }
 
+    [XmlRoot("point")]
+    public class Point
+    {
+        [XmlAttributeAttribute()]
+        public double lat;
+
+        [XmlAttributeAttribute()]
+        public double lon;
+
+        [XmlAttributeAttribute()]
+        public double ce;
+
+        [XmlAttributeAttribute()]
+        public double le;
+
+        [XmlAttributeAttribute()]
+        public double hae;
+    }
+
     [XmlInclude(typeof(LoginDetail))]
     public class EventDetail
     {
@@ -157,9 +117,51 @@ namespace TakSharp
         [XmlElement(ElementName = "__chat")]
         public Chat chat;
 
-
-        [XmlElement(ElementName = "link")]
         public Link link;
+
+        public Takv takv;
+
+        public Group group;
+
+        public Track track;
+
+        public Contact contact;
+
+        public Uid uid;
+    }
+
+    public class Uid
+    {
+        [XmlAttributeAttribute()] public string droid;
+               
+    }
+
+    public class Contact
+    {
+        [XmlAttributeAttribute()] public string callsign;
+        [XmlAttributeAttribute()] public string endpoint;
+    }
+
+    [XmlRoot("track")]
+    public class Track
+    {
+        [XmlAttributeAttribute()] public double course;
+        [XmlAttributeAttribute()] public double speed;
+    }
+
+    [XmlRoot("__group")]
+    public class Group
+    {
+        [XmlAttributeAttribute()] public string name;
+        [XmlAttributeAttribute()] public string role;
+    }
+
+    public class Takv
+    {
+        [XmlAttributeAttribute()] public string version;
+        [XmlAttributeAttribute()] public string platform;
+        [XmlAttributeAttribute()] public string os;
+        [XmlAttributeAttribute()] public string device;
     }
 
     public class Link
@@ -177,10 +179,6 @@ namespace TakSharp
         [XmlAttributeAttribute()] public string senderCallsign;
         [XmlAttributeAttribute()] public string groupOwner;
         [XmlAttributeAttribute()] public string messageId;
-
-
-
-
     }
 
     public class Remarks
@@ -198,23 +196,11 @@ namespace TakSharp
     [XmlRoot("login")]
     public class LoginDetail : EventDetail
     {
-        [XmlAttributeAttribute()]
-        public string contact;
-        [XmlAttributeAttribute()]
-        public string endpoint;
-        [XmlAttributeAttribute()]
-        public string group;
-        [XmlAttributeAttribute()]
-        public string password;
-        [XmlAttributeAttribute()]
-        public string status;
-        [XmlAttributeAttribute()]
-        public string uid;
-        [XmlAttributeAttribute()]
-        public string user;
-        [XmlAttributeAttribute()]
-        public string nonce;
-        [XmlAttributeAttribute()]
-        public string deviceId;
+        [XmlAttributeAttribute()] public string endpoint;
+        [XmlAttributeAttribute()] public string password;
+        [XmlAttributeAttribute()] public string status;
+        [XmlAttributeAttribute()] public string user;
+        [XmlAttributeAttribute()] public string nonce;
+        [XmlAttributeAttribute()] public string deviceId;
     }
 }

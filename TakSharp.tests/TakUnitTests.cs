@@ -129,7 +129,7 @@ namespace TakSharp.tests
             g.stale = CoT.FormatTime(DateTime.UtcNow + TimeSpan.FromHours(1));
 
 
-            await t.putObject(g);
+            await t.sendEvent(g);
 
             var e = tun.getCurrentEvent();
             Assert.IsNotNull(e);

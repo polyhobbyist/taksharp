@@ -21,12 +21,28 @@ namespace CotListener
                 x.Serialize(Console.Out, e);
             };
 
+            tak.uid = "testing";
+            tak.callsign = "Meatloaf";
+
             // Login to Tak
             var l = new CoT.Event();
-            l.version = "2.0";
-            l.uid = "testing";
-            l.detail = new LoginDetail() { uid= l.uid, deviceId="testing", password="", nonce=Tak.nonce() };
-            await tak.putObject(l);
+            l.detail = new LoginDetail() 
+            {
+                uid = new Uid() { droid = l.uid }, 
+                deviceId="testing", 
+                password="", nonce=Tak.nonce() 
+            };
+            await tak.sendEvent(l);
+
+
+            // Self identify
+            var id = new CoT.Event();
+
+            id.detail = new EventDetail()
+            {
+                track = new Track() { course = 0.0, speed = 0.0 },
+            };
+            await tak.sendEvent(id);
 
             tak.listen();
 

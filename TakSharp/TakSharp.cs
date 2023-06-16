@@ -63,6 +63,14 @@ namespace TakSharp
 
         bool listening = false;
 
+        public string uid;
+        public string callsign;
+        public string group;
+        public string role = "Team Member";
+        public string endpoint = "*:-1:stcp";
+
+
+
         public Tak(ITakNetwork net)
         {
             this.network = net;
@@ -78,11 +86,9 @@ namespace TakSharp
                 g.type = "t-x-d-d";
                 g.uid = "takPing";
                 g.how = "m-g";
-                g.time = CoT.FormatTime(DateTime.UtcNow);
-                g.start = CoT.FormatTime(DateTime.UtcNow);
-                g.stale = CoT.FormatTime(DateTime.UtcNow + TimeSpan.FromSeconds(60));
 
-                await putObject(g);
+
+                await sendEvent(g);
 
                 await Task.Delay(60000);
             }   
@@ -98,13 +104,34 @@ namespace TakSharp
         }
 
 
-        public async Task putObject(object o)
+        public async Task sendEvent(CoT.Event cot)
+        {
+            // fills in some common goo
+            cot.version = "2.0";
+            cot.type = CoT.typeAll;
+            cot.how = CoT.howGigo;
+            cot.uid = this.uid;
+
+            if (cot.detail == null)
+            {
+                cot.detail = new EventDetail();
+            }
+
+            cot.detail.uid = new Uid() { droid = this.uid };
+            cot.detail.takv = new Takv() { device = "", os = "", platform = "", version = "2.0" };
+            cot.detail.contact = new Contact() { callsign = this.callsign, endpoint = this.endpoint };
+            cot.detail.group = new Group() { name = this.group, role = this.role };
+
+            await sendRawEvent(cot);
+        }
+
+        public async Task sendRawEvent(CoT.Event cot)
         { 
-            var x = new XmlSerializer(o.GetType());
+            var x = new XmlSerializer(cot.GetType());
 
-            x.Serialize(stream, o);
+            x.Serialize(stream, cot);
 
-            await Task.Delay(1);
+            await Task.Yield();
         }
 
         public void stopListening()
@@ -138,14 +165,15 @@ namespace TakSharp
                     var messageBuilder = new StringBuilder();
                     do
                     {
-                        stream.Read(buffer, 0, buffer.Length);
-                        var s = Encoding.UTF8.GetString(buffer);
+                        var r = stream.Read(buffer, 0, buffer.Length);
+                        var s = Encoding.UTF8.GetString(buffer, 0, r);
                         messageBuilder.Append(s);
                     } while (stream.DataAvailable);
 
                     if (messageBuilder.Length > 0)
                     {
                         var message = messageBuilder.ToString();
+                        Console.WriteLine(message);
                         var x = new XmlSerializer(typeof(CoT.Event));
                         var e = (CoT.Event)x.Deserialize(new StringReader(message));
                         if (OnCot != null)
