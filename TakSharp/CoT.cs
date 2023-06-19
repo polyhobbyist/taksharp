@@ -119,7 +119,6 @@ namespace TakSharp
     }
 
     [Serializable()]
-    [XmlInclude(typeof(LoginDetail))]
     public class EventDetail
     {
         public LinkAttribute link_attr;
@@ -133,6 +132,7 @@ namespace TakSharp
 
         public Takv takv;
 
+        [XmlElement("__group")]
         public Group group;
 
         public Track track;
@@ -141,7 +141,15 @@ namespace TakSharp
 
         public Uid uid;
 
-        public Subscription subscription;
+        public Status status;
+    }
+
+    [Serializable()]
+    [XmlRoot("status")]
+    public class Status
+    {
+        [XmlAttributeAttribute()] public string battery;
+
     }
 
     [Serializable()]
@@ -181,6 +189,7 @@ namespace TakSharp
     {
         [XmlAttributeAttribute()] public string callsign;
         [XmlAttributeAttribute()] public string endpoint;
+        [XmlAttributeAttribute()] public string phone;
     }
 
     [Serializable()]
@@ -241,19 +250,5 @@ namespace TakSharp
         [XmlAttributeAttribute()] public string time;
         [XmlText()]
         public string content;
-    }
-
-    // CoT Event for Login. Xml node should be Login
-
-    [Serializable()]
-    [XmlRoot("login")]
-    public class LoginDetail : EventDetail
-    {
-        [XmlAttributeAttribute()] public string endpoint;
-        [XmlAttributeAttribute()] public string password;
-        [XmlAttributeAttribute()] public string status;
-        [XmlAttributeAttribute()] public string user;
-        [XmlAttributeAttribute()] public string nonce;
-        [XmlAttributeAttribute()] public string deviceId;
     }
 }

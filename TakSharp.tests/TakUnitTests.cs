@@ -157,7 +157,7 @@ namespace TakSharp.tests
                 t.stopListening();
             };
 
-            await t.listen();
+            t.listen();
         }
     }
 }

@@ -16,6 +16,7 @@ using Microsoft.VisualBasic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Xml;
+using System.Diagnostics.Eventing.Reader;
 
 namespace TakSharp
 {
@@ -63,17 +64,53 @@ namespace TakSharp
 
         bool listening = false;
 
-        public string uid;
         public string callsign;
         public string group;
-        public string role = "Team Member";
-        public string endpoint = "*:-1:stcp";
+        public string role;
+        public string endpoint;
 
 
 
         public Tak(ITakNetwork net)
         {
             this.network = net;
+        }
+
+        private string getDeviceId()
+        {
+            return Guid.NewGuid().ToString();
+        }
+
+        private string getUid()
+        {
+            return Environment.UserName;
+        }
+
+        public async Task login(string callsign, string password, string group, string role = "Team Member", string endpoint = "*:-1:stcp")
+        {
+            this.callsign = callsign;
+            this.group = group;
+            this.role = role;
+
+            // Login to Tak
+            var cot = new CoT.Event();
+            cot.uid = getUid();
+            cot.type = CoT.typeAll;
+            cot.version = "2.0";
+            cot.how = CoT.howGigo;
+            cot.uid = getUid();
+            cot.stale = DateTime.UtcNow.AddMinutes(60).ToString("O");
+            cot.detail = new EventDetail()
+            {
+                uid = new Uid() { droid = cot.uid },
+                contact = new Contact() { callsign = callsign, endpoint = endpoint },
+                takv = new Takv() { device = getDeviceId(), os = Environment.OSVersion.Version.ToString(), platform = Environment.OSVersion.Platform.ToString(), version = "2.0" },
+                group = new Group() { name = group, role = role },
+                status = new Status() { battery = "100" },
+                track = new Track() { course = 0.0, speed = 0.0 }
+
+            };
+            await sendEvent(cot);
         }
 
         private async void sendPingAsync()
@@ -110,14 +147,14 @@ namespace TakSharp
             cot.version = "2.0";
             cot.type = CoT.typeAll;
             cot.how = CoT.howGigo;
-            cot.uid = this.uid;
+            cot.uid = getUid();
 
             if (cot.detail == null)
             {
                 cot.detail = new EventDetail();
             }
 
-            cot.detail.uid = new Uid() { droid = this.uid };
+            cot.detail.uid = new Uid() { droid = cot.uid };
             cot.detail.takv = new Takv() { device = "", os = "", platform = "", version = "2.0" };
             cot.detail.contact = new Contact() { callsign = this.callsign, endpoint = this.endpoint };
             cot.detail.group = new Group() { name = this.group, role = this.role };
