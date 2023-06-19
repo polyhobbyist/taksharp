@@ -59,7 +59,15 @@ namespace TakSharp
         public const string howTadilb = "m-r-t-b";
         public const string howTadilj = "m-r-t-j";
 
+        [Serializable()]
+        [XmlRoot("events")]
+        public class Events
+        {
+            [XmlElement("event")]
+            public Event[] events;
+        }
 
+        [Serializable()]
         [XmlRoot("event")]
         public class Event
         {
@@ -86,10 +94,11 @@ namespace TakSharp
 
         public static string FormatTime(DateTime dt)
         {
-            return dt.ToString("o");
+            return dt.ToString("O");
         }
     }
 
+    [Serializable()]
     [XmlRoot("point")]
     public class Point
     {
@@ -109,15 +118,18 @@ namespace TakSharp
         public double hae;
     }
 
+    [Serializable()]
     [XmlInclude(typeof(LoginDetail))]
     public class EventDetail
     {
+        public LinkAttribute link_attr;
         public Remarks remarks;
 
-        [XmlElement(ElementName = "__chat")]
+        [XmlElement("__chat")]
         public Chat chat;
 
-        public Link link;
+        [XmlElement("link")]
+        public Link[] link;
 
         public Takv takv;
 
@@ -128,20 +140,50 @@ namespace TakSharp
         public Contact contact;
 
         public Uid uid;
+
+        public Subscription subscription;
     }
 
+    [Serializable()]
+    [XmlRoot("link_attr")]
+    public class LinkAttribute
+    {
+        [XmlAttributeAttribute()] public string order;
+        [XmlAttributeAttribute()] public string routetype;
+        [XmlAttributeAttribute()] public string direction;
+        [XmlAttributeAttribute()] public string method;
+        [XmlAttributeAttribute()] public string color;
+    }
+
+    [Serializable()]
+    public class Subscription
+    {
+        public string event_type;
+        public TimePeriod time_period;
+    }
+
+    [Serializable()]
+    public class TimePeriod
+    {
+        public string start;
+        public string stop;
+    }
+
+    [Serializable()]
     public class Uid
     {
         [XmlAttributeAttribute()] public string droid;
                
     }
 
+    [Serializable()]
     public class Contact
     {
         [XmlAttributeAttribute()] public string callsign;
         [XmlAttributeAttribute()] public string endpoint;
     }
 
+    [Serializable()]
     [XmlRoot("track")]
     public class Track
     {
@@ -149,6 +191,7 @@ namespace TakSharp
         [XmlAttributeAttribute()] public double speed;
     }
 
+    [Serializable()]
     [XmlRoot("__group")]
     public class Group
     {
@@ -156,6 +199,8 @@ namespace TakSharp
         [XmlAttributeAttribute()] public string role;
     }
 
+    [Serializable()]
+    [XmlRoot("takv")]
     public class Takv
     {
         [XmlAttributeAttribute()] public string version;
@@ -164,14 +209,19 @@ namespace TakSharp
         [XmlAttributeAttribute()] public string device;
     }
 
+    [Serializable()]
+    [XmlRoot("link")]
     public class Link
     {
         [XmlAttributeAttribute()] public string uid;
         [XmlAttributeAttribute()] public string parent_callsign;
         [XmlAttributeAttribute()] public string type;
         [XmlAttributeAttribute()] public string relation;
+        [XmlAttributeAttribute()] public string point;
     }
 
+    [Serializable()]
+    [XmlRoot("chat")]
     public class Chat
     {
         [XmlAttributeAttribute()] public string id;
@@ -181,6 +231,8 @@ namespace TakSharp
         [XmlAttributeAttribute()] public string messageId;
     }
 
+    [Serializable()]
+    [XmlRoot("remarks")]
     public class Remarks
     {
         [XmlAttributeAttribute()] public string source;
@@ -193,6 +245,7 @@ namespace TakSharp
 
     // CoT Event for Login. Xml node should be Login
 
+    [Serializable()]
     [XmlRoot("login")]
     public class LoginDetail : EventDetail
     {

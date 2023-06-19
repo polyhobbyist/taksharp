@@ -163,6 +163,11 @@ namespace TakSharp
                 try
                 {
                     var messageBuilder = new StringBuilder();
+                    // Cot can send multiple events in a block, so we're going to wrap them in an Events object, and process them as an array
+
+                    messageBuilder.AppendLine("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+                    messageBuilder.AppendLine("<events>");
+
                     do
                     {
                         var r = stream.Read(buffer, 0, buffer.Length);
@@ -172,13 +177,17 @@ namespace TakSharp
 
                     if (messageBuilder.Length > 0)
                     {
+                        messageBuilder.AppendLine("</events>");
                         var message = messageBuilder.ToString();
                         Console.WriteLine(message);
-                        var x = new XmlSerializer(typeof(CoT.Event));
-                        var e = (CoT.Event)x.Deserialize(new StringReader(message));
-                        if (OnCot != null)
+                        var x = new XmlSerializer(typeof(CoT.Events));
+                        var es = (CoT.Events)x.Deserialize(new StringReader(message));
+                        foreach (var e in es.events)
                         {
-                            OnCot(e);
+                            if (OnCot != null)
+                            {
+                                OnCot(e);
+                            }
                         }
                     }
                 }
